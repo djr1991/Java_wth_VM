@@ -157,11 +157,11 @@
                         "autoUpgradeMinorVersion": true,
                         "settings": {
                             "fileUris": [
-                                "https://raw.githubusercontent.com/djr1991/Java_wth_VM/main/DeployDeveloperConfig.ps1"
+                                "https://raw.githubusercontent.com/djr1991/Java_wth_VM/main/build_script.ps1"
                             ]
                         },
                         "protectedSettings": {
-                            "commandToExecute": "powershell.exe -Command \"./DeployDeveloperConfig.ps1; exit 0;\""
+                            "commandToExecute": "powershell.exe -Command \"./build_script.ps1; exit 0;\""
                         }   
                     }
                 }
