@@ -1,12 +1,24 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
-    "functions": [],
-    "variables": {},
+    "parameters": {
+        "adminPassword": {
+        "type": "string",
+        "metadata": {
+        "description": "User name for the Virtual Machine."
+            }
+        }
+    },
+    "variables": {
+        "publicIPAddressName": "[concat('wth-Vm-PublicIP-', resourceGroup().name)]",
+        "vnetName": "[concat('wth-Vm-VirtualNetwork-', resourceGroup().name)]",
+        "nsgName": "[concat('wth-Vm-nsg-', resourceGroup().name)]",
+        "nicName": "[concat('wth-Vm-NetworkInterface-', resourceGroup().name)]",
+        "vmName": "[concat('wth-Vm-', resourceGroup().name)]"
+    },
     "resources": [
         {
-            "name": "wth-Vm-PublicIP",
+            "name": "[variables('publicIPAddressName')]",
             "type": "Microsoft.Network/publicIPAddresses",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
@@ -18,7 +30,7 @@
             }
         },
         {
-            "name": "wth-Vm-nsg",
+            "name": "[variables('nsgName')]",
             "type": "Microsoft.Network/networkSecurityGroups",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
@@ -42,12 +54,12 @@
             }
         },
         {
-            "name": "wth-Vm-VirtualNetwork",
+            "name": "[variables('vnetName')]",
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkSecurityGroups', 'wth-Vm-nsg')]"
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
             ],
             "tags": {
                 "displayName": "wth-Vm-VirtualNetwork"
@@ -64,7 +76,7 @@
                         "properties": {
                             "addressPrefix": "10.0.0.0/24",
                             "networkSecurityGroup": {
-                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', 'wth-Vm-nsg')]"
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
                             }
                         }
                     }
@@ -72,13 +84,13 @@
             }
         },
         {
-            "name": "wth-Vm-NetworkInterface",
+            "name": "[variables('nicName')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/publicIPAddresses', 'wth-Vm-PublicIP')]",
-                "[resourceId('Microsoft.Network/virtualNetworks', 'wth-Vm-VirtualNetwork')]"
+                "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
             ],
             "tags": {
                 "displayName": "wth-Vm Network Interface"
@@ -90,10 +102,10 @@
                         "properties": {
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIPAddress": {
-                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', 'wth-Vm-PublicIP')]"
+                                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
                             },
                             "subnet": {
-                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'wth-Vm-VirtualNetwork', 'wth-Vm-VirtualNetwork-Subnet')]"
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'wth-Vm-VirtualNetwork-Subnet')]"
                             }
                         }
                     }
@@ -101,12 +113,12 @@
             }
         },
         {
-            "name": "wth-Vm",
+            "name": "[variables('vmName')]",
             "type": "Microsoft.Compute/virtualMachines",
             "apiVersion": "2021-03-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', 'wth-Vm-NetworkInterface')]"
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
             ],
             "tags": {
                 "displayName": "wth-Vm"
@@ -118,7 +130,7 @@
                 "osProfile": {
                     "computerName": "wth-Vm",
                     "adminUsername": "adminUsername",
-                    "adminPassword": "Th1sisatest!!!"
+                    "adminPassword": "[parameters('adminPassword')]"
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -136,7 +148,7 @@
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', 'wth-Vm-NetworkInterface')]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
                         }
                     ]
                 }
@@ -148,7 +160,7 @@
                     "apiVersion": "2019-07-01",
                     "location": "[resourceGroup().location]",
                     "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', 'wth-Vm')]"
+                        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
                     ],
                     "properties": {
                         "publisher": "Microsoft.Compute",
