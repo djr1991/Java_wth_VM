@@ -61,15 +61,13 @@ $ListOfPaths | foreach {
 
 
 #Copy Hackathon Files ...
-<#
-mkdir c:\petclinic
-$mypath = $MyInvocation.MyCommand.Path
-$shellScriptPath = join-path -path $(Split-Path $mypath -Parent) -childpath deployPetClinicApp.sh
-$petPSScriptPath = join-path -path $(Split-Path $mypath -Parent) -childpath deployPetClinicApp.ps1
-Copy-Item $shellScriptPath -Destination "c:\petclinic"
-Copy-Item $petPSScriptPath -Destination "c:\petclinic"
-#>
+Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/djr1991/Java_wth_VM/raw/main/spring-petclinic.zip" -OutFile petclinic.zip
+mkdir $home\desktop\petclinic -force
+Expand-Archive -Path petclinic.zip -DestinationPath $home\desktop\petclinic
 
+
+
+#Create a shortcut to the command prompt
 $SourceFilePath = "C:\windows\system32\cmd.exe"
 $ShortcutPath = "$home\desktop\Command Prompt.lnk"
 $WScriptObj = New-Object -ComObject ("WScript.Shell")
