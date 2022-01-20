@@ -10,27 +10,39 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 
 #Install Apps
-choco install "openjdk8" --confirm
-choco install "maven" --confirm --force
-choco install "vscode" --confirm --force
+choco install "openjdk8" --confirm -v
+choco install "maven" --confirm --force -v
+choco install "vscode" --confirm --force -v
 start-process "C:\Program Files\Microsoft VS Code\bin\Code" -ArgumentList "--install-extension vscjava.vscode-java-pack"
-choco install "azure-cli" --confirm
-choco install "git" --confirm
-
-#Add Maven to Global Path Environment Variable
-$MavenBinPath=(Get-ChildItem -Path "C:\ProgramData\chocolatey\lib\maven" -Filter "bin" -Recurse).FullName
-[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";$MavenBinPath", [EnvironmentVariableTarget]::Machine)
+choco install "azure-cli" --confirm -v
+choco install "git" --confirm -v
 
 
-# Set AZ CLI enviromental variables
-[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin", [EnvironmentVariableTarget]::Machine)
+#Add to Global Path Environment Variable
+$PathsToAdd=@()
 
-# Set JAVA enviromental variables
-$javaPath=(Get-ChildItem -Path "C:\program files\openjdk" -Directory).fullname
-[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";$javaPath\bin", [EnvironmentVariableTarget]::Machine)
+    #Maven
+    $MavenBinPath=(Get-ChildItem -Path "C:\ProgramData\chocolatey\lib\maven" -Filter "bin" -Recurse).FullName
+    $PathsToAdd+=$MavenBinPath
 
-# Set Git enviromental variables
-[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";C:\Program Files\Git\bin", [EnvironmentVariableTarget]::Machine)
+    #Java
+    $javaPath=(Get-ChildItem -Path "C:\program files\openjdk" -Directory).fullname
+    $PathsToAdd+="$javaPath\bin"
+
+    #AZ CLI
+    $PathsToAdd+="C:\Program Files (x86)\Microsoft SDKs\Azure\CLI2\wbin"
+
+    #GIT
+    $PathsToAdd+="C:\Program Files\Git\bin"
+
+$PathsToAddString=";"+($PathsToAdd -join ";")
+$PathsToAddString
+[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + $PathsToAddString, [EnvironmentVariableTarget]::Machine)
+
+
+#Prepare profile items
+mkdir "c:\users\default\.m2"
+copy-item -Recurse -Path "C:\Windows\System32\config\systemprofile\.vscode" "c:\users\default\.vscode"
 
 
 
@@ -38,7 +50,7 @@ $javaPath=(Get-ChildItem -Path "C:\program files\openjdk" -Directory).fullname
 $ListOfPaths=@()
 
 $ListOfPaths+=Get-ChildItem -Path "C:\program files\openjdk" -Filter java.exe  -Recurse
-$ListOfPaths+=Get-ChildItem -Path "c:\users\adminUsername\.vscode" -Filter java.exe  -Recurse
+#$ListOfPaths+=Get-ChildItem -Path "c:\users\adminUsername\.vscode" -Filter java.exe  -Recurse
 
 $ListOfPaths | foreach {
 
@@ -76,6 +88,7 @@ Set-ItemProperty -Path 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Se
 Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "PortNumber" -Value 22389
 New-NetFirewallRule -DisplayName 'RDPPORTLatest' -Profile 'Any' -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22389
 Set-ItemProperty -Path 'HKLM:\Software\Policies\Microsoft\WindowsFirewall\PublicProfile' -name "AllowLocalPolicyMerge" -Value 1
+restart-service TermService -Force
 
 reg query "HKLM\Software\Policies\Microsoft\WindowsFirewall\PublicProfile" /s
 Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "PortNumber"
@@ -84,14 +97,14 @@ Get-NetFirewallProfile -PolicyStore ActiveStore
 
 #Copy Hackathon Files ...
 Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/djr1991/Java_wth_VM/raw/main/spring-petclinic.zip" -OutFile petclinic.zip
-mkdir c:\users\adminusername\desktop\petclinic -force
-Expand-Archive -Path petclinic.zip -DestinationPath c:\users\adminusername\desktop\petclinic
+mkdir c:\petclinic -force
+Expand-Archive -Path petclinic.zip -DestinationPath c:\petclinic
 
 
 
 #Create a shortcut to the command prompt
 $SourceFilePath = "C:\windows\system32\cmd.exe"
-$ShortcutPath = "c:\users\adminusername\desktop\Command Prompt.lnk"
+$ShortcutPath = "c:\users\default\desktop\Command Prompt.lnk"
 $WScriptObj = New-Object -ComObject ("WScript.Shell")
 $shortcut = $WscriptObj.CreateShortcut($ShortcutPath)
 $shortcut.TargetPath = $SourceFilePath
