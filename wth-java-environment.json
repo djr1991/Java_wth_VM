@@ -5,7 +5,7 @@
         "adminPassword": {
         "type": "securestring",
         "metadata": {
-        "description": "User name for the Virtual Machine."
+        "description": "Password for the Virtual Machine."
             }
         }
     },
