@@ -16,5 +16,7 @@ In this challenge we'll be creating an Azure Windows VM, which will contain Java
 
 	- **NOTE:** To Remote Desktop into the development machine use port 22389 on the VMs public IP:
     	- `mstsc -v <VM Public IP>:22389` 
+    	- 
 	- The username is adminUsername 
+    	- 
     	- Verify that mvn, Java and and Azure CLI are installed on the VM.
