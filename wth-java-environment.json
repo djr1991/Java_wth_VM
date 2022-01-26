@@ -23,7 +23,8 @@
             "apiVersion": "2020-11-01",
             "location": "[resourceGroup().location]",
             "tags": {
-                "displayName": "PublicIPAddress"
+                "displayName": "[concat('wth-Vm-PublicIP-', resourceGroup().name)]",
+                "purpose": "Azure Java What the Hack"
             },
             "properties": {
                 "publicIPAllocationMethod": "Dynamic"
@@ -140,7 +141,7 @@
                         "version": "latest"
                     },
                     "osDisk": {
-                        "name": "wth-VmOSDisk",
+                        "name": "[concat('wth-Vm-OsDisk-', resourceGroup().name)]",
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
                     }
