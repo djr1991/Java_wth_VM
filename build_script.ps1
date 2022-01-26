@@ -97,8 +97,8 @@ Get-NetFirewallProfile -PolicyStore ActiveStore
 
 #Copy Hackathon Files ...
 Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/djr1991/Java_wth_VM/raw/main/spring-petclinic.zip" -OutFile petclinic.zip
-mkdir c:\petclinic -force
-Expand-Archive -Path petclinic.zip -DestinationPath c:\petclinic
+mkdir c:\users\default\desktop\petclinic -force
+Expand-Archive -Path petclinic.zip -DestinationPath c:\users\default\desktop\petclinic
 
 
 
